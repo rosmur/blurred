@@ -41,6 +41,12 @@ final class SettingObservable: ObservableObject {
         }
     }
     
+    @Published var grainIntensity: Double = UserDefaults.grainIntensity {
+        didSet {
+            UserDefaults.grainIntensity = self.grainIntensity
+        }
+    }
+
     @Published var globalHotkey: GlobalKeybindPreferences? = UserDefaults.globalKey {
         didSet {
             UserDefaults.globalKey = self.globalHotkey

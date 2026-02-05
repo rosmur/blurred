@@ -15,11 +15,13 @@ class StatusBarController{
     
     private let menuStatusItem = NSStatusBar.system.statusItem(withLength:NSStatusItem.squareLength)
     private let slider = NSSlider()
+    private let grainSlider = NSSlider()
     private var cancellableSet: Set<AnyCancellable> = []
     
     init() {
         setupView()
         setupSlider()
+        setupGrainSlider()
     }
     
     private func setupView() {
@@ -55,6 +57,30 @@ class StatusBarController{
     @objc private func sliderChanged() {
         DimManager.sharedInstance.setting.alpha = slider.doubleValue
     }
+
+    private func setupGrainSlider() {
+        grainSlider.minValue = 0.0
+        grainSlider.maxValue = 100.0
+        grainSlider.doubleValue = DimManager.sharedInstance.setting.grainIntensity
+
+        DimManager.sharedInstance.setting.$grainIntensity
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.doubleValue, on: self.grainSlider)
+            .store(in: &cancellableSet)
+
+        DimManager.sharedInstance.setting.$isEnabled
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isEnabled, on: self.grainSlider)
+            .store(in: &cancellableSet)
+
+        grainSlider.target = self
+        grainSlider.action = #selector(grainSliderChanged)
+    }
+
+    @objc private func grainSliderChanged() {
+        DimManager.sharedInstance.setting.grainIntensity = grainSlider.doubleValue
+    }
     
     private func getContextMenu() -> NSMenu {
         let menu = NSMenu()
@@ -87,6 +113,24 @@ class StatusBarController{
         sliderMenuItem.view = view
         menu.addItem(withTitle: "Slide to set Dim level".localized, action: nil, keyEquivalent: "")
         menu.addItem(sliderMenuItem)
+
+        // Grain intensity slider
+        let grainMenuItem = NSMenuItem()
+        let grainView = NSView()
+        grainView.setFrameSize(NSSize(width: 100, height: 22))
+        grainView.autoresizingMask = .width
+        grainView.addSubview(grainSlider)
+        grainSlider.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: grainSlider, attribute: .leading, relatedBy: .equal, toItem: grainView, attribute: .leading, multiplier: 1, constant: 16),
+            NSLayoutConstraint(item: grainSlider, attribute: .trailing, relatedBy: .equal, toItem: grainView, attribute: .trailing, multiplier: 1, constant: -16),
+            NSLayoutConstraint(item: grainSlider, attribute: .top, relatedBy: .equal, toItem: grainView, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: grainSlider, attribute: .bottom, relatedBy: .equal, toItem: grainView, attribute: .bottom, multiplier: 1, constant: 0),
+        ])
+        grainMenuItem.view = grainView
+        menu.addItem(withTitle: "Slide to set Grain level".localized, action: nil, keyEquivalent: "")
+        menu.addItem(grainMenuItem)
+
         menu.addItem(NSMenuItem.separator())
         menu.addItem(enableButton)
         menu.addItem(NSMenuItem.separator())

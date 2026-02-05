@@ -31,12 +31,12 @@ class DimManager {
     }
     
     func dim(runningApplication: NSRunningApplication?, withDelay: Bool = true) {
-        
+
         guard DimManager.sharedInstance.setting.isEnabled else {
             self.removeAllOverlay()
             return
         }
-        
+
         // Remove dim if user click to desktop
         // This will also remove dim if user click to finder
         // Improve: Find the other way to check if user click to desktop
@@ -44,10 +44,11 @@ class DimManager {
             self.removeAllOverlay()
             return
         }
-        
-        let color = NSColor.black.withAlphaComponent(CGFloat(DimManager.sharedInstance.setting.alpha/100.0))
-        
-        DimManager.sharedInstance.windows(color: color, withDelay: withDelay) { [weak self] windows in
+
+        let dimAlpha = CGFloat(DimManager.sharedInstance.setting.alpha / 100.0)
+        let grainIntensity = CGFloat(DimManager.sharedInstance.setting.grainIntensity / 100.0)
+
+        DimManager.sharedInstance.windows(dimAlpha: dimAlpha, grainIntensity: grainIntensity, withDelay: withDelay) { [weak self] windows in
             guard let strongSelf = self else {return}
             strongSelf.removeAllOverlay()
             strongSelf.windows = windows
@@ -60,7 +61,17 @@ class DimManager {
     
     func adjustDimmingLevel(alpha: Double) {
         for overlayWindow in self.windows {
-            overlayWindow.backgroundColor = NSColor.black.withAlphaComponent(CGFloat(alpha/100.0))
+            if let overlayView = overlayWindow.contentView as? GrainyOverlayView {
+                overlayView.updateDimAlpha(CGFloat(alpha / 100.0))
+            }
+        }
+    }
+
+    func adjustGrainIntensity(intensity: Double) {
+        for overlayWindow in self.windows {
+            if let overlayView = overlayWindow.contentView as? GrainyOverlayView {
+                overlayView.updateGrainIntensity(CGFloat(intensity / 100.0))
+            }
         }
     }
 }
@@ -71,32 +82,38 @@ extension DimManager {
         return NSWorkspace.shared.frontmostApplication
     }
     
-    private func windows(color: NSColor, withDelay: Bool, didCreateWindows: @escaping ([NSWindow])->()) {
+    private func windows(dimAlpha: CGFloat, grainIntensity: CGFloat, withDelay: Bool, didCreateWindows: @escaping ([NSWindow])->()) {
         let delay = withDelay ? 0.2 : 0
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let strongSelf = self else {return}
             let windowInfos = strongSelf.getWindowInfos()
-            
+
             let screens = NSScreen.screens
             let windows = screens.map { screen in
-                return strongSelf.windowForScreen(screen: screen, windowInfos: windowInfos, color: color)
+                return strongSelf.windowForScreen(screen: screen, windowInfos: windowInfos, dimAlpha: dimAlpha, grainIntensity: grainIntensity)
             }
-            
+
             didCreateWindows(windows)
         }
     }
-    
-    private func windowForScreen(screen: NSScreen, windowInfos: [WindowInfo], color: NSColor) -> NSWindow {
-        
+
+    private func windowForScreen(screen: NSScreen, windowInfos: [WindowInfo], dimAlpha: CGFloat, grainIntensity: CGFloat) -> NSWindow {
+
         let frame = NSRect(origin: .zero, size: screen.frame.size)
-        let overlayWindow = NSWindow.init(contentRect: frame, styleMask: .borderless, backing: .buffered, defer: false, screen: screen)
+        let overlayWindow = NSWindow(contentRect: frame, styleMask: .borderless, backing: .buffered, defer: false, screen: screen)
         overlayWindow.isReleasedWhenClosed = false
         overlayWindow.animationBehavior = .none
-        overlayWindow.backgroundColor = color
+        overlayWindow.isOpaque = false
+        overlayWindow.backgroundColor = .clear
         overlayWindow.ignoresMouseEvents = true
         overlayWindow.collectionBehavior = [.transient, .fullScreenNone]
         overlayWindow.level = .normal
-        
+
+        let overlayView = GrainyOverlayView(frame: frame)
+        overlayView.updateDimAlpha(dimAlpha)
+        overlayView.updateGrainIntensity(grainIntensity)
+        overlayWindow.contentView = overlayView
+
         var windowNumber = 0
         switch self.setting.dimMode {
         case .single:
@@ -110,10 +127,10 @@ extension DimManager {
                     newScreen.minY <= $0.bounds!.midY &&
                     newScreen.maxY >= $0.bounds!.midY
             })
-            
+
             windowNumber = windowInfo?.number ?? 0
         }
-        
+
         overlayWindow.order(.below, relativeTo: windowNumber)
         return overlayWindow
     }
@@ -146,6 +163,11 @@ extension DimManager {
             .sink(receiveValue: adjustDimmingLevel)
             .store(in: &cancellableSet)
         
+        self.setting.$grainIntensity
+            .removeDuplicates()
+            .sink(receiveValue: adjustGrainIntensity)
+            .store(in: &cancellableSet)
+
         self.setting.$isEnabled
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: toggleDimming)

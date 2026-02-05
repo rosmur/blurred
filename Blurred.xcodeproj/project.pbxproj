@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA00010200000000000A0001 /* GrainShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = CA00010100000000000A0001 /* GrainShader.metal */; };
+		CA00010200000000000A0002 /* GrainTextureGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA00010100000000000A0002 /* GrainTextureGenerator.swift */; };
+		CA00010200000000000A0003 /* GrainyOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA00010100000000000A0003 /* GrainyOverlayView.swift */; };
 		08203CD023CD9CBE0006AE7C /* Bundle+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08203CCF23CD9CBE0006AE7C /* Bundle+Extension.swift */; };
 		083501CC23C5DF0400F6E567 /* EventMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 083501CB23C5DF0400F6E567 /* EventMonitor.swift */; };
 		0850B62424208EC300717EDE /* LinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0850B62324208EC300717EDE /* LinkView.swift */; };
@@ -51,6 +54,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CA00010100000000000A0001 /* GrainShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = GrainShader.metal; sourceTree = "<group>"; };
+		CA00010100000000000A0002 /* GrainTextureGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainTextureGenerator.swift; sourceTree = "<group>"; };
+		CA00010100000000000A0003 /* GrainyOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainyOverlayView.swift; sourceTree = "<group>"; };
 		08203CCF23CD9CBE0006AE7C /* Bundle+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Extension.swift"; sourceTree = "<group>"; };
 		083501CB23C5DF0400F6E567 /* EventMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMonitor.swift; sourceTree = "<group>"; };
 		0850B62324208EC300717EDE /* LinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkView.swift; sourceTree = "<group>"; };
@@ -116,6 +122,7 @@
 				0850B62324208EC300717EDE /* LinkView.swift */,
 				0851749A23FD099400B3B84F /* GeneralView.swift */,
 				0850B62524208EE700717EDE /* AboutView.swift */,
+				CA00010100000000000A0003 /* GrainyOverlayView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -208,6 +215,8 @@
 				083501CB23C5DF0400F6E567 /* EventMonitor.swift */,
 				08203CCF23CD9CBE0006AE7C /* Bundle+Extension.swift */,
 				B32C8D982498E837003562C9 /* String+Extension.swift */,
+				CA00010100000000000A0001 /* GrainShader.metal */,
+				CA00010100000000000A0002 /* GrainTextureGenerator.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -348,6 +357,9 @@
 				085174A323FD2EF300B3B84F /* GlobalKeyBindPreferences.swift in Sources */,
 				557D86AF2473878900C4B809 /* StatusBarSwipeToSetAlphaView.swift in Sources */,
 				0851749C23FD099400B3B84F /* GeneralView.swift in Sources */,
+				CA00010200000000000A0001 /* GrainShader.metal in Sources */,
+				CA00010200000000000A0002 /* GrainTextureGenerator.swift in Sources */,
+				CA00010200000000000A0003 /* GrainyOverlayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

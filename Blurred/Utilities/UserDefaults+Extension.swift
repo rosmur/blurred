@@ -21,6 +21,7 @@ extension UserDefaults {
         static let isOpenPrefWhenOpenApp = "IS_OPEN_PREF_WHEN_OPEN_APP"
         static let dimMode = "DIM_MODE"
         static let globalKey = "GLOBAL_KEY"
+        static let grainIntensity = "GRAIN_INTENSITY"
     }
     
     static var isStartWhenLogin: Bool {
@@ -85,6 +86,15 @@ extension UserDefaults {
         }
     }
     
+    static var grainIntensity: Double {
+        get {
+            return UserDefaults.standard.double(forKey: UserDefaults.Key.grainIntensity)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: UserDefaults.Key.grainIntensity)
+        }
+    }
+
     static var globalKey: GlobalKeybindPreferences? {
           get {
               guard let data = UserDefaults.standard.value(forKey: UserDefaults.Key.globalKey) as? Data else { return nil }

@@ -26,8 +26,12 @@
 "This app is fully open source"="此应用完全开源";
 "Email us"="电子邮件";
 
+// GeneralView (Grain)
+"Grain level"="颗粒等级";
+
 // Status Bar
 "Slide to set Dim level"="滑动来设置模糊等级";
+"Slide to set Grain level"="滑动来设置颗粒等级";
 "Preferences..."="偏好设置...";
 "Quit"="退出";
 "Disable"="关闭";

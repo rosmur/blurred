@@ -36,10 +36,24 @@ struct GeneralView: View {
             
             HStack {
                 Text("10%")
-                
+
                 Slider(value: $setting.alpha, in: 10...100, step: 10)
                     .disabled(!setting.isEnabled)
-                
+
+                Text("100%")
+            }
+
+            HStack {
+                Text("Grain level").bold()
+                Spacer()
+            }
+
+            HStack {
+                Text("0%")
+
+                Slider(value: $setting.grainIntensity, in: 0...100, step: 5)
+                    .disabled(!setting.isEnabled)
+
                 Text("100%")
             }
             
