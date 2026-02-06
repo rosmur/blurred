@@ -13,11 +13,21 @@
 
 import Cocoa
 
+/// NSView subclass that guarantees its layer background color is set
+/// after AppKit creates the backing layer (not before, as layer? would be nil).
+private final class DimLayerView: NSView {
+    override var wantsUpdateLayer: Bool { true }
+    override func updateLayer() {
+        layer?.backgroundColor = NSColor.black.cgColor
+    }
+}
+
 final class GrainyOverlayView: NSView {
 
     private let visualEffectView = NSVisualEffectView()
-    private let dimView = NSView()
+    private let dimView = DimLayerView()
     private var grainLayer: CALayer?
+    private var grainLayerInstalled = false
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -47,7 +57,7 @@ final class GrainyOverlayView: NSView {
         wantsLayer = true
 
         // 1. Behind-window blur (compositor-managed, not our GPU budget)
-        visualEffectView.material = .hudWindow
+        visualEffectView.material = .fullScreenUI
         visualEffectView.blendingMode = .behindWindow
         visualEffectView.state = .active
         visualEffectView.appearance = NSAppearance(named: .darkAqua)
@@ -58,13 +68,18 @@ final class GrainyOverlayView: NSView {
 
         // 2. Dim overlay (replaces the old backgroundColor approach)
         dimView.wantsLayer = true
-        dimView.layer?.backgroundColor = NSColor.black.cgColor
         dimView.frame = bounds
         dimView.autoresizingMask = [.width, .height]
         addSubview(dimView)
+    }
 
-        // 3. Grain texture (static tiled pattern, overlay blend)
-        setupGrainLayer()
+    // Install grain sublayer once the backing layer exists.
+    override func viewDidMoveToSuperview() {
+        super.viewDidMoveToSuperview()
+        if !grainLayerInstalled, superview != nil {
+            setupGrainLayer()
+            grainLayerInstalled = true
+        }
     }
 
     private func setupGrainLayer() {

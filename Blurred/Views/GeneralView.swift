@@ -10,21 +10,29 @@ import SwiftUI
 
 struct GeneralView: View {
     @ObservedObject var setting: SettingObservable
-    
+
+    /// Static grain tile generated once for the preview overlay.
+    private static let grainPreviewImage: Image? = {
+        guard let cgImage = GrainTextureGenerator.grainImage() else { return nil }
+        let nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
+        return Image(nsImage: nsImage)
+    }()
+
     var body: some View {
         VStack {
             HStack {
                 Text("Blurred level").bold()
                 Spacer()
             }
-            
+
             GeometryReader { geometry in
                 ZStack {
                     Image("desktop")
                         .resizable()
                         .overlay(Color.black.opacity(self.setting.isEnabled ? self.setting.alpha/100.0 : 0))
+                        .overlay(grainPreview)
                         .cornerRadius(4)
-                    
+
                     Image("window")
                         .resizable()
                         .scaledToFit()
@@ -119,6 +127,17 @@ struct GeneralView: View {
                 }
             }
         }.padding()
+    }
+
+    @ViewBuilder
+    private var grainPreview: some View {
+        if setting.isEnabled, setting.grainIntensity > 0,
+           let tile = Self.grainPreviewImage {
+            tile
+                .resizable(resizingMode: .tile)
+                .blendMode(.overlay)
+                .opacity(setting.grainIntensity / 100.0)
+        }
     }
 }
 

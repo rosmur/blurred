@@ -19,6 +19,7 @@ final class GrainTextureGenerator {
     private static var cachedSeed: UInt32 = 0
 
     static func grainImage(seed: UInt32 = 42) -> CGImage? {
+        dispatchPrecondition(condition: .onQueue(.main))
         if let cached = cachedImage, cachedSeed == seed {
             return cached
         }
