@@ -94,10 +94,10 @@ final class GrainTextureGenerator {
 
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         guard let provider = CGDataProvider(
-            dataInfo: nil,
+            dataInfo: bytes,
             data: bytes,
             size: byteCount,
-            releaseData: { _, data, _ in data.deallocate() }
+            releaseData: { info, _, _ in info?.deallocate() }
         ) else {
             bytes.deallocate()
             return nil
@@ -123,7 +123,7 @@ final class GrainTextureGenerator {
     private static func generateViaCPU(width: Int, height: Int, seed: UInt32) -> CGImage? {
         let bytesPerRow = width * 4
         let byteCount = bytesPerRow * height
-        let bytes = UnsafeMutablePointer<UInt8>.allocate(capacity: byteCount)
+        let bytes = UnsafeMutableRawPointer.allocate(byteCount: byteCount, alignment: 1)
 
         for y in 0..<height {
             for x in 0..<width {
@@ -135,19 +135,19 @@ final class GrainTextureGenerator {
                 h ^= h >> 16
                 let value = UInt8((h & 0xFF))
                 let offset = y * bytesPerRow + x * 4
-                bytes[offset]     = value
-                bytes[offset + 1] = value
-                bytes[offset + 2] = value
-                bytes[offset + 3] = 255
+                bytes.storeBytes(of: value, toByteOffset: offset, as: UInt8.self)
+                bytes.storeBytes(of: value, toByteOffset: offset + 1, as: UInt8.self)
+                bytes.storeBytes(of: value, toByteOffset: offset + 2, as: UInt8.self)
+                bytes.storeBytes(of: UInt8(255), toByteOffset: offset + 3, as: UInt8.self)
             }
         }
 
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         guard let provider = CGDataProvider(
-            dataInfo: nil,
-            data: UnsafeMutableRawPointer(bytes),
+            dataInfo: bytes,
+            data: bytes,
             size: byteCount,
-            releaseData: { _, data, _ in data.deallocate() }
+            releaseData: { info, _, _ in info?.deallocate() }
         ) else {
             bytes.deallocate()
             return nil

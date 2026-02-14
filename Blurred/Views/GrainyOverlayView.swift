@@ -58,10 +58,10 @@ final class GrainyOverlayView: NSView {
 
         // 2. Dim overlay (replaces the old backgroundColor approach)
         dimView.wantsLayer = true
-        dimView.layer?.backgroundColor = NSColor.black.cgColor
         dimView.frame = bounds
         dimView.autoresizingMask = [.width, .height]
         addSubview(dimView)
+        dimView.layer?.backgroundColor = NSColor.black.cgColor
 
         // 3. Grain texture (static tiled pattern, overlay blend)
         setupGrainLayer()
